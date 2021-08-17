@@ -1,0 +1,96 @@
+service:
+  name: yjs-socket-service
+
+profile: colab
+
+custom:
+  output:
+    file: ./client/data.json
+  stage: ${opt:stage, 'dev'}
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+  
+
+environment:
+    APIG_ENDPOINT:
+      Fn::Join:
+        - ''
+        - - Ref: WebsocketsApi
+          - .execute-api.
+          - Ref: AWS::Region
+          - .amazonaws.com/
+          - ${self:custom.stage}
+    CONNECTIONS_TABLE:
+      Ref: ConnectionsTable
+
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:Scan
+      - dynamodb:PutItem
+    Resource:
+      Fn::GetAtt:
+        - YConnectionsTable
+        - Arn
+
+functions:
+  api:
+    handler: handler.main
+    events:
+      - websocket:
+          # Handles new connection requests
+          route: $connect
+          # Only the '$connect' route supports an authorizer. The other routes
+          # are secured via the connection ID and therefore it should be handled
+          # like a session ID.
+          
+      - websocket:
+          # Route messages here if '$request.body.action' is 'routeA'.
+          # You can adjust which property to use for routing by adjusting
+          # 'websocketsApiRouteSelectionExpression'.
+          route: routeA
+      - websocket:
+          # Handles all unrouted messages
+          route: $default
+      - websocket:
+          # Handles disconnect messages
+          route: $disconnect
+
+
+resources:
+  Resources:
+    YConnectionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: PartitionKey
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: DocNameIndex
+          - KeySchema: 
+            - AttributeName: DocName
+              KeyType: HASH
+        KeySchema:
+          - AttributeName: PartitionKey
+            KeyType: HASH
+        SSESpecification:
+          SSEEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true

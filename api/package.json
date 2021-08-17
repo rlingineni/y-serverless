@@ -1,0 +1,41 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "Serverless webpack example using Typescript",
+  "main": "handler.js",
+  "scripts": {
+    "start": "tsc --project tsconfig.local.json && node lib/local/index.js"
+  },
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "@types/axios": "^0.14.0",
+    "@types/koa": "^2.11.6",
+    "@types/koa__router": "^8.0.3",
+    "@types/ws": "^7.4.7",
+    "aws-sdk": "^2.797.0",
+    "axios": "^0.21.0",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "lib0": "^0.2.42",
+    "query-string": "^7.0.1",
+    "serverless-http": "^2.6.0",
+    "source-map-support": "^0.5.10",
+    "y-protocols": "^1.0.5",
+    "yjs": "^13.5.12"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/node": "^10.17.60",
+    "copy-webpack-plugin": "^6.4.1",
+    "fork-ts-checker-webpack-plugin": "^3.0.1",
+    "nodemon": "^2.0.9",
+    "serverless-apigw-binary": "^0.4.4",
+    "serverless-webpack": "^5.2.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.4",
+    "webpack": "^4.29.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "license": "MIT"
+}

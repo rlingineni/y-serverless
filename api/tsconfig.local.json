@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "outDir": "lib",
+      "target": "es2017",
+      "lib": ["es2017","dom"],
+      "module": "commonjs",
+      "esModuleInterop": false,
+      "strict": false,
+      "declaration": true,
+      "sourceMap": true
+    }
+  }
+  
