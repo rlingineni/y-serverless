@@ -66,7 +66,7 @@ class YSockets {
                     case syncProtocol.messageYjsUpdate:
                         const update = decoding.readVarUint8Array(decoder);
                         Y.applyUpdate(doc, update);
-                        await ct.updateDoc(docName, buffer_1.toBase64(encoding.toUint8Array(encoder)));
+                        await ct.updateDoc(docName, buffer_1.toBase64(update));
                         await broadcast(messageArray);
                         break;
                     default:

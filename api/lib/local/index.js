@@ -18,7 +18,7 @@ wss.on('connection', (ws, req) => {
     connectedClients[clientName] = ws;
     ySockets.onConnection(clientName, docName);
     ws.on('message', message => {
-        console.log(message);
+        console.log(message.toString());
         // message is b64 string
         //console.log(`Received message => ${fromBase64(message.toString())}`)
         ySockets.onMessage(clientName, message.toString(), sendToClient);

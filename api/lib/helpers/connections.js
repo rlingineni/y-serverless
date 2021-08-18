@@ -5,7 +5,7 @@ const ddb_1 = require("../utils/ddb");
 const Y = require("yjs");
 class ConnectionsTableHelper {
     constructor() {
-        this.DatabaseHelper = new ddb_1.DDBHelper({ tableName: 'yjs-socket-service-dev-YConnectionsTable-1G8SW3YJ430C4', primaryKeyName: 'PartitionKey' });
+        this.DatabaseHelper = new ddb_1.DDBHelper({ tableName: 'YConnectionsTable', primaryKeyName: 'PartitionKey' });
     }
     async createConnection(id, docName) {
         return this.DatabaseHelper.createItem(id, { DocName: docName, ttl: (Date.now() / 1000) + 3600 });
@@ -41,17 +41,15 @@ class ConnectionsTableHelper {
         else {
             await this.DatabaseHelper.createItem(docName, dbDoc, undefined, true);
         }
-        console.log(dbDoc);
         // convert update string to an encoded array
         const updates = dbDoc.Updates.map(update => new Uint8Array(Buffer.from(update, 'base64')));
-        console.log(updates);
         const ydoc = new Y.Doc();
         for (const update of updates) {
             try {
                 Y.applyUpdate(ydoc, update);
             }
             catch (ex) {
-                console.log("Something went wrong with applying the update!");
+                console.log("Something went wrong with applying the update");
             }
         }
         return ydoc;
