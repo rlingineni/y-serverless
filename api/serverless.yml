@@ -50,7 +50,7 @@ iamRoleStatements:
 
 functions:
   api:
-    handler: handler.main
+    handler: main.handler
     events:
       - websocket:
           # Handles new connection requests
@@ -77,15 +77,22 @@ resources:
     YConnectionsTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: YConnectionsTable
         AttributeDefinitions:
           - AttributeName: PartitionKey
+            AttributeType: S
+          - AttributeName: DocName
             AttributeType: S
         BillingMode: PAY_PER_REQUEST
         GlobalSecondaryIndexes:
           - IndexName: DocNameIndex
-          - KeySchema: 
-            - AttributeName: DocName
-              KeyType: HASH
+            KeySchema:
+              - AttributeName: DocName
+                KeyType: HASH
+            Projection:
+              NonKeyAttributes:
+                - Updates
+              ProjectionType: INCLUDE
         KeySchema:
           - AttributeName: PartitionKey
             KeyType: HASH

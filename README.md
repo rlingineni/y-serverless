@@ -13,8 +13,10 @@
 
  ## Setup
 
+
  ### Testing Locally
  ```
+ cd api
 npm install
 npm run start
  ```
@@ -23,7 +25,13 @@ npm run start
 
 ### Deploy to AWS
 ```
+cd api
 serverless deploy
+```
+
+### See Logs
+```
+serverless logs -f api
 ```
 
 ### Resources

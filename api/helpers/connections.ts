@@ -17,7 +17,7 @@ export class ConnectionsTableHelper {
 
     private DatabaseHelper:DDBHelper;
     constructor(){
-        this.DatabaseHelper = new DDBHelper({tableName:'yjs-socket-service-dev-YConnectionsTable-1G8SW3YJ430C4', primaryKeyName:'PartitionKey'})
+        this.DatabaseHelper = new DDBHelper({tableName:'YConnectionsTable', primaryKeyName:'PartitionKey'})
     }
    
 
@@ -63,22 +63,16 @@ export class ConnectionsTableHelper {
             await this.DatabaseHelper.createItem(docName, dbDoc, undefined, true)
         }
 
-        console.log(dbDoc);
-
         // convert update string to an encoded array
         const updates = dbDoc.Updates.map(update => new Uint8Array(Buffer.from(update, 'base64')))
 
-        console.log(updates);
-
         const ydoc = new Y.Doc()
-
         for(const update of updates){
             try{
                 Y.applyUpdate(ydoc, update)
             }catch(ex){
-                console.log("Something went wrong with applying the update!")
+                console.log("Something went wrong with applying the update");
             }
-
         }
            
         return ydoc

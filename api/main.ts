@@ -9,23 +9,34 @@ const apig = new AWS.ApiGatewayManagementApi({
 });
 
 const getDocName = (event:any) => {
-  const qs = event.multiValueQueryStringParameters
+  const qs:any = event.multiValueQueryStringParameters
 
+  // convert to array
+    // if value starts with "doc-" use the docname
+  const values = Object.values(qs) as string[][];
+    for(const val of values){
+      if(val[0].startsWith('doc-')){
+        return val[0];
+      }
+    }
+    
+  
+  
   if (!qs || !qs.doc) {
-    throw new Error('must specify ?doc=DOC_NAME')
+    throw new Error('Client must specify doc name in parameter')
   }
 
-  return qs.doc[0]
+
 }
 
-const send = async(id:string, message:any) =>{
+const send = async(id:string, message:string) =>{
   await apig.postToConnection({
     ConnectionId: id,
-    Data: JSON.stringify(message)
+    Data: message
   }).promise();
 }
 
-exports.handler = async function(event) {
+exports.handler = async(event, context) =>  {
   // For debug purposes only.
   // You should not log any sensitive information in production.
   console.log("EVENT: \n" + JSON.stringify(event, null, 2));
@@ -44,16 +55,9 @@ exports.handler = async function(event) {
       return { statusCode: 200, body: 'Disconnected.' }
     }
     case '$default':
-    default:{
-      console.log(event.body);
-      const {message} = event.body;
-      await ysockets.onMessage(connectionId, message, send )
-    }
-      
+    default:
+      await ysockets.onMessage(connectionId, body, send )
+      return { statusCode: 200, body: 'Data Sent' };
+    
   }
-
-  // Return a 200 status to tell API Gateway the message was processed
-  // successfully.
-  // Otherwise, API Gateway will return a 500 to the client.
-  return { statusCode: 200 };
 }

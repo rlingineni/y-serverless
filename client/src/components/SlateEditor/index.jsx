@@ -27,7 +27,7 @@ const HOTKEYS = {
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
-const YJS_ENDPOINT = 'ws://localhost:5000'
+const YJS_ENDPOINT = 'wss://3ow2rmycw7.execute-api.us-east-1.amazonaws.com/dev'
 
 const clientName = Math.random().toString(36).substr(2, 20)
 
