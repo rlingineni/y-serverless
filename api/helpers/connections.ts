@@ -1,6 +1,8 @@
 import { DDBHelper } from "../utils/ddb";
 import * as Y from "yjs";
 
+import * as awarenessProtocol from "y-protocols/awareness";
+
 import { toBase64 } from "lib0/buffer";
 
 interface ConnectionItem {
@@ -12,7 +14,7 @@ interface ConnectionItem {
 
 interface DocumentItem {
   PartitionKey: string;
-  Updates: { S: string }[];
+  Updates: string[];
 }
 
 export class ConnectionsTableHelper {
@@ -81,6 +83,8 @@ export class ConnectionsTableHelper {
     );
 
     const ydoc = new Y.Doc();
+    (ydoc as any).awareness = new awarenessProtocol.Awareness(ydoc);
+    
     for (const update of updates) {
       try {
         Y.applyUpdate(ydoc, update);
@@ -94,27 +98,49 @@ export class ConnectionsTableHelper {
 
   async updateDoc(docName: string, update: string) {
     console.log(update);
-    return await this.DatabaseHelper.updateItemAttribute(
+    
+    /*return await this.DatabaseHelper.updateItemAttribute(
       docName,
       "Updates",
       [update],
       undefined,
       { appendToList: true }
-    );
+    );*/
 
-    /*
-    Future: Try to compute diffs as one large update
     
-    const existingDoc = await this.DatabaseHelper.getItem<DocumentItem>(docName);
+    // Future: Try to compute diffs as one large update
+    
+       const existingDoc = await this.DatabaseHelper.getItem<DocumentItem>(docName);
 
         let dbDoc = {
             Updates: []
         }
+
+        const ydoc = new Y.Doc();
+        (ydoc as any).awareness = new awarenessProtocol.Awareness(ydoc);
+        
         if(existingDoc) {
             dbDoc = existingDoc
         }else{
             await this.DatabaseHelper.createItem(docName, dbDoc, undefined, true)
         }
+
+        const yDatabaseDoc = ConnectionsTableHelper.applyDBUpdates(ydoc, dbDoc as DocumentItem);
+        
+        const currentDBState = Y.encodeStateAsUpdate(yDatabaseDoc)
+        yDatabaseDoc.destroy();
+
+        const diff1 = Y.diffUpdate(currentDBState, stateVector2)
+
+        const currentDBStateVector = Y.encodeStateVectorFromUpdate(currentDBState)
+
+        currentState1 = Y.mergeUpdates([currentState1, diff2])
+
+        const diff1 = Y.diffUpdate(currentState1, stateVector2)
+        
+        ydoc.destroy();
+
+        const docState2  = Y.encodeStateVectorFromUpdate(currentState1)
 
         const oldUpdates = dbDoc.Updates.map(update => new Uint8Array(Buffer.from(update, 'base64')))
 
@@ -122,5 +148,20 @@ export class ConnectionsTableHelper {
         const mergedUpdate = Y.mergeUpdates(oldUpdates.concat([update]));
 
         return await this.DatabaseHelper.updateItemAttribute(docName,'Updates', [toBase64(mergedUpdate)], undefined)*/
+  }
+
+  static applyDBUpdates(ydoc:Y.Doc, updates:DocumentItem){
+    const oldUpdates = updates.Updates.map(update => new Uint8Array(Buffer.from(update, 'base64')))
+
+    for (const update of oldUpdates) {
+      try {
+        Y.applyUpdate(ydoc, update);
+      } catch (ex) {
+        console.log("Something went wrong with applying the update");
+      }
+    }
+
+    return ydoc;
+
   }
 }
