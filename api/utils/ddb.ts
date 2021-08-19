@@ -276,7 +276,7 @@ export class DDBHelper {
     const { TABLE_NAME, docClient} = this;
     let UpdateExpression =`SET ${attributeName} = :details`;
 
-    if(options.appendToList){
+    if(options && options.appendToList){
       UpdateExpression = `SET ${attributeName} = list_append(${attributeName}, :details)`;
     }
 
